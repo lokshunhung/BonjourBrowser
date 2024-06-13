@@ -9,13 +9,20 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        BonjourView {
+            BrowserView(viewModel: .init(service: .init()))
+        } connectionView: {
+            ConnectionView(viewModel: .init(service: .init()))
+        } listenerView: {
+            ListenerView(viewModel: .init(service: .init()))
         }
-        .padding()
+//        VStack {
+//            Image(systemName: "globe")
+//                .imageScale(.large)
+//                .foregroundStyle(.tint)
+//            Text("Hello, world!")
+//        }
+//        .padding()
     }
 }
 

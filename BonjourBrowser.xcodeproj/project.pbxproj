@@ -7,7 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		83EBDE7A2C188ABE0017FF06 /* BonjourBrowserApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83EBDE792C188ABE0017FF06 /* BonjourBrowserApp.swift */; };
+		835B086C2C198B9000DCCC04 /* BonjourView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 835B086B2C198B9000DCCC04 /* BonjourView.swift */; };
+		835B086E2C198CBB00DCCC04 /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 835B086D2C198CBB00DCCC04 /* AppModel.swift */; };
+		83EBDE7A2C188ABE0017FF06 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83EBDE792C188ABE0017FF06 /* App.swift */; };
 		83EBDE7C2C188ABE0017FF06 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83EBDE7B2C188ABE0017FF06 /* ContentView.swift */; };
 		83EBDE7E2C188ABF0017FF06 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 83EBDE7D2C188ABF0017FF06 /* Assets.xcassets */; };
 		83EBDE812C188ABF0017FF06 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 83EBDE802C188ABF0017FF06 /* Preview Assets.xcassets */; };
@@ -15,12 +17,13 @@
 		83EBDE8B2C188FBE0017FF06 /* Info.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83EBDE8A2C188FBE0017FF06 /* Info.swift */; };
 		83EBDE8D2C189E950017FF06 /* BonjourConnectionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83EBDE8C2C189E950017FF06 /* BonjourConnectionService.swift */; };
 		83EBDE8F2C18A4670017FF06 /* BonjourListenerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83EBDE8E2C18A4670017FF06 /* BonjourListenerService.swift */; };
-		83EBDE912C18A86A0017FF06 /* BonjourViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83EBDE902C18A86A0017FF06 /* BonjourViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		835B086B2C198B9000DCCC04 /* BonjourView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BonjourView.swift; sourceTree = "<group>"; };
+		835B086D2C198CBB00DCCC04 /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
 		83EBDE762C188ABE0017FF06 /* BonjourBrowser.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BonjourBrowser.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		83EBDE792C188ABE0017FF06 /* BonjourBrowserApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BonjourBrowserApp.swift; sourceTree = "<group>"; };
+		83EBDE792C188ABE0017FF06 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
 		83EBDE7B2C188ABE0017FF06 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		83EBDE7D2C188ABF0017FF06 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		83EBDE802C188ABF0017FF06 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
@@ -29,7 +32,6 @@
 		83EBDE8A2C188FBE0017FF06 /* Info.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Info.swift; sourceTree = "<group>"; };
 		83EBDE8C2C189E950017FF06 /* BonjourConnectionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BonjourConnectionService.swift; sourceTree = "<group>"; };
 		83EBDE8E2C18A4670017FF06 /* BonjourListenerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BonjourListenerService.swift; sourceTree = "<group>"; };
-		83EBDE902C18A86A0017FF06 /* BonjourViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BonjourViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -62,11 +64,12 @@
 		83EBDE782C188ABE0017FF06 /* BonjourBrowser */ = {
 			isa = PBXGroup;
 			children = (
-				83EBDE792C188ABE0017FF06 /* BonjourBrowserApp.swift */,
+				83EBDE792C188ABE0017FF06 /* App.swift */,
+				835B086D2C198CBB00DCCC04 /* AppModel.swift */,
 				83EBDE872C188B020017FF06 /* BonjourBrowserService.swift */,
 				83EBDE8C2C189E950017FF06 /* BonjourConnectionService.swift */,
 				83EBDE8E2C18A4670017FF06 /* BonjourListenerService.swift */,
-				83EBDE902C18A86A0017FF06 /* BonjourViewModel.swift */,
+				835B086B2C198B9000DCCC04 /* BonjourView.swift */,
 				83EBDE7B2C188ABE0017FF06 /* ContentView.swift */,
 				83EBDE8A2C188FBE0017FF06 /* Info.swift */,
 				83EBDE892C188F530017FF06 /* Info.plist */,
@@ -156,10 +159,11 @@
 			files = (
 				83EBDE7C2C188ABE0017FF06 /* ContentView.swift in Sources */,
 				83EBDE882C188B020017FF06 /* BonjourBrowserService.swift in Sources */,
-				83EBDE912C18A86A0017FF06 /* BonjourViewModel.swift in Sources */,
-				83EBDE7A2C188ABE0017FF06 /* BonjourBrowserApp.swift in Sources */,
+				835B086E2C198CBB00DCCC04 /* AppModel.swift in Sources */,
+				83EBDE7A2C188ABE0017FF06 /* App.swift in Sources */,
 				83EBDE8F2C18A4670017FF06 /* BonjourListenerService.swift in Sources */,
 				83EBDE8B2C188FBE0017FF06 /* Info.swift in Sources */,
+				835B086C2C198B9000DCCC04 /* BonjourView.swift in Sources */,
 				83EBDE8D2C189E950017FF06 /* BonjourConnectionService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -304,6 +308,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -335,6 +340,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
