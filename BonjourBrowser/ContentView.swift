@@ -8,21 +8,33 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State var browserViewModel: BrowserView.Model
+    @State var connectionViewModel: ConnectionView.Model
+    @State var listenerViewModel: ListenerView.Model
+
+    @MainActor init(
+        browserService: BonjourBrowserService = .init(),
+        connectionService: BonjourConnectionService = .init(),
+        listenerService: BonjourListenerService = .init(),
+        mainQueue: DispatchQueue = .main
+    ) {
+        self.browserViewModel = .init(service: browserService, mainQueue: mainQueue)
+        self.connectionViewModel = .init(service: connectionService, mainQueue: mainQueue)
+        self.listenerViewModel = .init(service: listenerService, mainQueue: mainQueue)
+
+        browserViewModel.onResultSelected = { result in
+            connectionService.start(using: result)
+        }
+    }
+
     var body: some View {
         BonjourView {
-            BrowserView(viewModel: .init(service: .init()))
+            BrowserView(viewModel: browserViewModel)
         } connectionView: {
-            ConnectionView(viewModel: .init(service: .init()))
+            ConnectionView(viewModel: connectionViewModel)
         } listenerView: {
-            ListenerView(viewModel: .init(service: .init()))
+            ListenerView(viewModel: listenerViewModel)
         }
-//        VStack {
-//            Image(systemName: "globe")
-//                .imageScale(.large)
-//                .foregroundStyle(.tint)
-//            Text("Hello, world!")
-//        }
-//        .padding()
     }
 }
 

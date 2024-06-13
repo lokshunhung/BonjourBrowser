@@ -37,7 +37,7 @@ public final class BonjourConnectionService: ObservableObject {
             if let connection = self.connection { return connection }
             let connection = NWConnection(
                 to: result.endpoint,
-                using: Info.Bonjour.nwParameters
+                using: .bonjour.tcp()
             )
             self.connection = connection
             return connection
@@ -53,7 +53,7 @@ public final class BonjourConnectionService: ObservableObject {
         Logger.connection.info("stop")
         queue.sync {
             guard let connection else { return }
-            connection.cancel()
+            connection.forceCancel()
             self.connection = nil
             self.state = .cancelled
             self.path = nil

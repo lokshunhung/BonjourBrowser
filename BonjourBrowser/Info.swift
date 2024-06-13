@@ -9,8 +9,7 @@ import Foundation
 import Network
 
 public enum Info {
-    public enum Bonjour {
+    public enum bonjour {
         public static let serviceType: String = "_scratchbonjourbrowser._tcp"
-        public static let nwParameters: NWParameters = .tcp
     }
 }

@@ -34,8 +34,8 @@ public final class BonjourBrowserService: ObservableObject {
         let browser = queue.sync {
             if let browser = self.browser { return browser }
             let browser = NWBrowser(
-                for: .bonjour(type: Info.Bonjour.serviceType, domain: "local."),
-                using: Info.Bonjour.nwParameters
+                for: .bonjour(type: Info.bonjour.serviceType, domain: "local."),
+                using: .bonjour.tcp()
             )
             self.browser = browser
             return browser
