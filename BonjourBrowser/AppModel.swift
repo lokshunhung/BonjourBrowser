@@ -24,7 +24,7 @@ public final class AppModel: ObservableObject {
             .sink { [pathStorage] path in
                 pathStorage.write(path)
             }
-            .store(in: &cancellables)
+            .store(in: &self.cancellables)
     }
 
     public struct NavigationPathStorage {

@@ -13,10 +13,10 @@ import OSLog
 /// Given a `NWBrowser.Result`, initiates a connection to the discovered service.
 /// The `NWBrowser.Result` could be obtained with `BonjourBrowserService`.
 public final class BonjourConnectionService: ObservableObject {
-    public typealias State = NWConnection.State
-    public typealias Path = NWPath
+    public typealias State = Connection.State
+    public typealias Path = Connection.Path
 
-    private var connection: NWConnection?
+    private var connection: Connection?
     private let queue: DispatchQueue = .init(
         label: "gnlok.BonjourBrowser.BonjourConnectionService",
         target: .global(qos: .userInitiated)
@@ -33,26 +33,26 @@ public final class BonjourConnectionService: ObservableObject {
 
     public func start(using result: NWBrowser.Result) {
         Logger.connection.info("start")
-        let connection = queue.sync {
-            if let connection = self.connection { return connection }
-            let connection = NWConnection(
+        queue.sync {
+            guard self.connection == nil else { return }
+            let networkConnection = NWConnection(
                 to: result.endpoint,
                 using: .bonjour.tcp()
             )
+            let connection = Connection(
+                connection: networkConnection,
+                queue: queue
+            )
             self.connection = connection
-            return connection
+            self.bind(connection)
+            connection.start()
         }
-        connection.stateUpdateHandler = { [weak self] in self?.onStateChanged($0) }
-        connection.pathUpdateHandler = { [weak self] in self?.onPathUpdated($0) }
-        connection.viabilityUpdateHandler = { [weak self] in self?.onViabilityUpdated($0) }
-        connection.betterPathUpdateHandler = { [weak self] in self?.onBetterPathUpdated($0) }
-        connection.start(queue: queue)
     }
 
     public func stop() {
         Logger.connection.info("stop")
         queue.sync {
-            guard let connection else { return }
+            guard let connection = self.connection else { return }
             connection.forceCancel()
             self.connection = nil
             self.state = .cancelled
@@ -62,30 +62,19 @@ public final class BonjourConnectionService: ObservableObject {
         }
     }
 
-    // MARK: NWConnection Handlers
-
-    private func onStateChanged(_ state: NWConnection.State) {
-        dispatchPrecondition(condition: .onQueue(queue))
-        Logger.connection.info("status \(String(describing: state))")
-        self.state = state
-    }
-
-    private func onPathUpdated(_ newPath: NWPath) {
-        dispatchPrecondition(condition: .onQueue(queue))
-        Logger.connection.info("path-> \(String(describing: newPath))")
-        self.path = newPath
-    }
-
-    private func onViabilityUpdated(_ newIsViable: Bool) {
-        dispatchPrecondition(condition: .onQueue(queue))
-        Logger.connection.info("viable \(newIsViable)")
-        self.isViable = newIsViable
-    }
-
-    private func onBetterPathUpdated(_ newHasBetterPath: Bool) {
-        dispatchPrecondition(condition: .onQueue(queue))
-        Logger.connection.info("better path \(newHasBetterPath)")
-        self.hasBetterPath = newHasBetterPath
+    private func bind(_ connection: Connection) {
+        connection.$state
+            .receive(on: queue)
+            .assign(to: &self.$state)
+        connection.$path
+            .receive(on: queue)
+            .assign(to: &self.$path)
+        connection.$isViable
+            .receive(on: queue)
+            .assign(to: &self.$isViable)
+        connection.$hasBetterPath
+            .receive(on: queue)
+            .assign(to: &self.$hasBetterPath)
     }
 }
 

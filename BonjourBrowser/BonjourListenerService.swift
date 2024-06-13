@@ -10,8 +10,8 @@ import Foundation
 import Network
 import OSLog
 
-public class BonjourListenerService: ObservableObject {
-    public typealias Connection = NWConnection
+/// Starts listening for incoming connections.
+public final class BonjourListenerService: ObservableObject {
     public typealias Group = NWConnectionGroup
     public typealias State = NWListener.State
 
@@ -22,7 +22,6 @@ public class BonjourListenerService: ObservableObject {
     )
 
     @Published public private(set) var connections: [Connection] = []
-    @Published public private(set) var groups: [Group] = []
     @Published public private(set) var state: State = .setup
 
     public init() {}
@@ -46,13 +45,11 @@ public class BonjourListenerService: ObservableObject {
 
     public func stop() {
         queue.sync {
-            guard let listener else { return }
+            guard let listener = self.listener else { return }
             listener.cancel()
             self.listener = nil
             self.connections.forEach { $0.forceCancel() }
-            self.groups.forEach { $0.cancel() }
             self.connections = []
-            self.groups = []
             self.state = .cancelled
         }
     }
@@ -60,34 +57,11 @@ public class BonjourListenerService: ObservableObject {
     private func onNewConnection(_ connection: NWConnection) {
         dispatchPrecondition(condition: .onQueue(queue))
         Logger.listener.info("newcon \(String(describing: connection))")
+
+        let connection = Connection(connection: connection, queue: queue)
         self.connections.append(connection)
 
-        // TODO: set handlers + logs
-        connection.stateUpdateHandler = { [weak self] state in
-            switch state {
-            case .failed, .cancelled:
-                self?.connections.removeAll(where: { $0 === connection })
-            case .setup, .waiting, .preparing, .ready: fallthrough
-            @unknown default:
-                break
-            }
-        }
-        connection.start(queue: queue)
-    }
-
-    private func onNewConnectionGroup(_ group: NWConnectionGroup) {
-        dispatchPrecondition(condition: .onQueue(queue))
-        Logger.listener.info("newgrp \(String(describing: group))")
-        self.groups.append(group)
-        group.stateUpdateHandler = { [weak self] state in
-            switch state {
-            case .failed, .cancelled:
-                self?.groups.removeAll(where: { $0 === group })
-            case .setup, .waiting, .ready: fallthrough
-            @unknown default:
-                break
-            }
-        }
+        connection.start()
     }
 
     private func onStateUpdated(_ newState: NWListener.State) {

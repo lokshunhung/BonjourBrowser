@@ -96,29 +96,29 @@ public struct BrowserView: View {
 
             service.$state.map(Optional.some)
                 .receive(on: mainQueue)
-                .assign(to: &$state)
+                .assign(to: &self.$state)
             service.$browseResults.map(Array.init)
                 .receive(on: mainQueue)
-                .assign(to: &$results)
+                .assign(to: &self.$results)
         }
 
         public func handleAction(_ action: Action) {
             switch action {
             case .startTapped:
-                service.start()
+                self.service.start()
             case .stopTapped:
-                service.stop()
+                self.service.stop()
             case .resultTapped(let result):
-                alert = .confirmResult(result)
+                self.alert = .confirmResult(result)
             case .handleAlertAction(let action):
-                handleAlertAction(action)
+                self.handleAlertAction(action)
             }
         }
 
         private func handleAlertAction(_ action: AlertAction?) {
             switch action {
             case .confirm(let result):
-                onResultSelected(result)
+                self.onResultSelected(result)
             case nil:
                 break
             }
@@ -204,18 +204,18 @@ public struct ConnectionView: View {
 
             service.$state.map(Optional.some)
                 .receive(on: mainQueue)
-                .assign(to: &$state)
+                .assign(to: &self.$state)
             service.$path
                 .receive(on: mainQueue)
-                .assign(to: &$path)
+                .assign(to: &self.$path)
         }
 
         public func handleAction(_ action: Action) {
             switch action {
             case .startTapped(let browserResult):
-                service.start(using: browserResult)
+                self.service.start(using: browserResult)
             case .stopTapped:
-                service.stop()
+                self.service.stop()
             }
         }
     }
@@ -241,8 +241,8 @@ public struct ListenerView: View {
             Text("Listener")
         }
         Section {
-            ForEach(viewModel.connections, id: \.[extension: .identifiable]) { connection in
-                Text(connection.debugDescription)
+            ForEach(viewModel.connections) { connection in
+                ListenerConnectionView(viewModel: ListenerConnectionView.Model(connection))
             }
         } header: {
             Text("Listener Connections (\(viewModel.connections.count))")
@@ -271,8 +271,7 @@ public struct ListenerView: View {
         private let service: BonjourListenerService
         private let mainQueue: DispatchQueue
 
-        @Published public private(set) var connections: [BonjourListenerService.Connection] = []
-        @Published public private(set) var groups: [BonjourListenerService.Group] = []
+        @Published public private(set) var connections: [Connection] = []
         @Published public private(set) var state: BonjourListenerService.State?
 
         public init(
@@ -284,21 +283,18 @@ public struct ListenerView: View {
 
             service.$connections
                 .receive(on: mainQueue)
-                .assign(to: &$connections)
-            service.$groups
-                .receive(on: mainQueue)
-                .assign(to: &$groups)
+                .assign(to: &self.$connections)
             service.$state.map(Optional.some)
                 .receive(on: mainQueue)
-                .assign(to: &$state)
+                .assign(to: &self.$state)
         }
 
         public func handleAction(_ action: Action) {
             switch action {
             case .startTapped:
-                try? service.start()
+                try? self.service.start()
             case .stopTapped:
-                service.stop()
+                self.service.stop()
             }
         }
     }
@@ -309,9 +305,38 @@ public struct ListenerView: View {
     }
 }
 
-// MARK: - NSObject Identifiable
+public struct ListenerConnectionView: View {
+    @ObservedObject var viewModel: Model
 
-private extension BonjourListenerService.Connection {
-    enum IdentifiableExtension { case identifiable }
-    subscript(extension _: IdentifiableExtension) -> ObjectIdentifier { .init(self) }
+    // TODO: NavigationLink(value:label:)
+    public var body: some View {
+        HStack {
+            Text(viewModel.state)
+                .foregroundStyle(.gray)
+                .frame(width: 80)
+            Text(viewModel.description)
+        }
+    }
+
+    @MainActor public final class Model: ObservableObject {
+        @Published public private(set) var state: String = ""
+        @Published public private(set) var description: String = ""
+
+        public init(_ connection: Connection, mainQueue: DispatchQueue = .main) {
+            connection.$state
+                .receive(on: mainQueue)
+                .map(\.bonjour.description)
+                .map { description in
+                    description.prefix(while: { $0 != "(" })
+                }
+                .map(String.init)
+                .assign(to: &self.$state)
+            connection.objectWillChange
+                .delay(for: .milliseconds(10), scheduler: mainQueue)
+                .receive(on: mainQueue)
+                .prepend(())
+                .map { _ in connection.debugDescription }
+                .assign(to: &self.$description)
+        }
+    }
 }

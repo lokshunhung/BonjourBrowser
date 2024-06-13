@@ -48,7 +48,7 @@ public final class BonjourBrowserService: ObservableObject {
     public func stop() {
         Logger.browser.info("stop")
         queue.sync {
-            guard let browser else { return }
+            guard let browser = self.browser else { return }
             browser.cancel()
             self.browser = nil
             self.state = .cancelled
