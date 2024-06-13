@@ -159,6 +159,7 @@ extension AlertState<BrowserView.AlertAction> {
 public struct ConnectionView: View {
     @ObservedObject var viewModel: Model
 
+    // TODO: List all connections
     public var body: some View {
         Section {
             LabeledContent("State") {

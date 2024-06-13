@@ -10,6 +10,7 @@ import Foundation
 import Network
 import OSLog
 
+// TODO: Allow picking multiple connections from browser
 /// Given a `NWBrowser.Result`, initiates a connection to the discovered service.
 /// The `NWBrowser.Result` could be obtained with `BonjourBrowserService`.
 public final class BonjourConnectionService: ObservableObject {
