@@ -14,6 +14,8 @@
 		835B08752C1B331100DCCC04 /* SwiftUINavigationCore in Frameworks */ = {isa = PBXBuildFile; productRef = 835B08742C1B331100DCCC04 /* SwiftUINavigationCore */; };
 		83EB79042C1B4BE700AE125E /* Connection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83EB79032C1B4BE700AE125E /* Connection.swift */; };
 		83EB79062C1C065500AE125E /* HomePageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83EB79052C1C065500AE125E /* HomePageView.swift */; };
+		83EB79082C1C0BDB00AE125E /* ConnectionDetailPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83EB79072C1C0BDB00AE125E /* ConnectionDetailPageView.swift */; };
+		83EB790C2C1C2BF200AE125E /* Route.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83EB790B2C1C2BF200AE125E /* Route.swift */; };
 		83EBDE7A2C188ABE0017FF06 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83EBDE792C188ABE0017FF06 /* App.swift */; };
 		83EBDE7E2C188ABF0017FF06 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 83EBDE7D2C188ABF0017FF06 /* Assets.xcassets */; };
 		83EBDE812C188ABF0017FF06 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 83EBDE802C188ABF0017FF06 /* Preview Assets.xcassets */; };
@@ -29,6 +31,8 @@
 		835B086F2C1B256F00DCCC04 /* Network+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Network+Extensions.swift"; sourceTree = "<group>"; };
 		83EB79032C1B4BE700AE125E /* Connection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Connection.swift; sourceTree = "<group>"; };
 		83EB79052C1C065500AE125E /* HomePageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomePageView.swift; sourceTree = "<group>"; };
+		83EB79072C1C0BDB00AE125E /* ConnectionDetailPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionDetailPageView.swift; sourceTree = "<group>"; };
+		83EB790B2C1C2BF200AE125E /* Route.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Route.swift; sourceTree = "<group>"; };
 		83EBDE762C188ABE0017FF06 /* BonjourBrowser.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BonjourBrowser.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		83EBDE792C188ABE0017FF06 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
 		83EBDE7D2C188ABF0017FF06 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -79,10 +83,12 @@
 				83EBDE8E2C18A4670017FF06 /* BonjourListenerService.swift */,
 				835B086B2C198B9000DCCC04 /* BonjourView.swift */,
 				83EB79032C1B4BE700AE125E /* Connection.swift */,
+				83EB79072C1C0BDB00AE125E /* ConnectionDetailPageView.swift */,
 				83EB79052C1C065500AE125E /* HomePageView.swift */,
 				83EBDE8A2C188FBE0017FF06 /* Info.swift */,
 				83EBDE892C188F530017FF06 /* Info.plist */,
 				835B086F2C1B256F00DCCC04 /* Network+Extensions.swift */,
+				83EB790B2C1C2BF200AE125E /* Route.swift */,
 				83EBDE7D2C188ABF0017FF06 /* Assets.xcassets */,
 				83EBDE7F2C188ABF0017FF06 /* Preview Content */,
 			);
@@ -183,7 +189,9 @@
 				835B086C2C198B9000DCCC04 /* BonjourView.swift in Sources */,
 				83EBDE8D2C189E950017FF06 /* BonjourConnectionService.swift in Sources */,
 				83EB79062C1C065500AE125E /* HomePageView.swift in Sources */,
+				83EB790C2C1C2BF200AE125E /* Route.swift in Sources */,
 				83EB79042C1B4BE700AE125E /* Connection.swift in Sources */,
+				83EB79082C1C0BDB00AE125E /* ConnectionDetailPageView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

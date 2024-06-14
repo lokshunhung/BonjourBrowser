@@ -9,34 +9,25 @@ import SwiftUI
 
 @main
 struct BonjourBrowserApp: App {
-    let appModel: AppModel
-    let homePageViewModel: HomePageView.Model
-
-    init() {
-        let component = AppComponent()
-
-        self.appModel = component.appModel
-        self.homePageViewModel = component.homePageViewModel
-    }
+    private let component: AppComponent = .init()
 
     var body: some Scene {
         WindowGroup {
-            AppView(appModel: appModel) {
-            } homePage: {
-                HomePageView(viewModel: homePageViewModel)
+            AppView(appModel: self.component.appModel) {
+                self.component.home()
+                    .modifier(self.component.navigationDestinationModifier)
             }
         }
     }
 }
 
-private struct AppView: View {
+private struct AppView<Content: View>: View {
     @StateObject var appModel: AppModel
-    let trail: () -> ()
-    let homePage: () -> HomePageView
+    let content: () -> Content
 
     var body: some View {
         NavigationStack(path: $appModel.path) {
-            homePage()
+            content()
         }
         .environmentObject(appModel)
     }
@@ -56,12 +47,43 @@ private final class AppComponent {
     lazy var appModel: AppModel =
         .init(pathStorage: self.navigationPathStorage)
 
-    @MainActor
-    lazy var homePageViewModel: HomePageView.Model =
-        .init(
+    @MainActor private func viewModel(_ route: HomePageRoute) -> HomePageView.Model {
+        return .init(
             browserService: self.browserService,
             connectionService: self.connectionService,
             listenerService: self.listenerService,
             mainQueue: self.mainQueue
         )
+    }
+
+    @MainActor private func viewModel(_ route: ConnectionDetailPageRoute) -> ConnectionDetailPageView.Model {
+        return .init(
+            connection: route.connection,
+            mainQueue: self.mainQueue
+        )
+    }
+
+    @MainActor func home() -> some View {
+        HomePageView(viewModel: viewModel(HomePageRoute()))
+    }
+
+    var navigationDestinationModifier: some ViewModifier {
+        NavigationDestinationModifier(component: self)
+    }
+
+    private struct NavigationDestinationModifier: ViewModifier {
+        let component: AppComponent
+
+        func body(content: Content) -> some View {
+            Group {
+                content
+            }
+            .navigationDestination(for: HomePageRoute.self) { route in
+                HomePageView(viewModel: component.viewModel(route))
+            }
+            .navigationDestination(for: ConnectionDetailPageRoute.self) { route in
+                ConnectionDetailPageView(viewModel: component.viewModel(route))
+            }
+        }
+    }
 }

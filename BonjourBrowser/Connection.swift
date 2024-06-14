@@ -92,6 +92,18 @@ extension Connection: CustomDebugStringConvertible {
     }
 }
 
+extension Connection: Equatable {
+    public static func == (lhs: Connection, rhs: Connection) -> Bool {
+        lhs === rhs
+    }
+}
+
+extension Connection: Hashable {
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(ObjectIdentifier(self))
+    }
+}
+
 private extension Logger {
     static let peer: Self = .init(
         subsystem: Bundle.main.bundleIdentifier!,

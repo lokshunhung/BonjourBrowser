@@ -24,7 +24,7 @@ public final class BonjourConnectionService: ObservableObject {
         target: .global(qos: .userInitiated)
     )
 
-    @Published public private(set) var connections: [NWBrowser.Result: Connection] = [:]
+    @Published public private(set) var connections: [NWBrowser.Result: [Connection]] = [:]
 
     public init() {}
 
@@ -34,8 +34,9 @@ public final class BonjourConnectionService: ObservableObject {
     public func start(with result: NWBrowser.Result) -> Connection {
         Logger.connection.info("start(with:) \(String(describing: result))")
         return self.queue.sync {
-            if let connection = self.connections[result] {
-                Logger.connection.warning("start(with:) - called twice using the same result: \(String(describing: result))")
+            if let connection = self.connections[result]?.last,
+               !connection.state.isTerminated {
+                Logger.connection.warning("start(with:) - unexpected call while a non-terminated connection with same result: \(String(describing: result))")
                 return connection
             }
 
@@ -47,7 +48,7 @@ public final class BonjourConnectionService: ObservableObject {
                 connection: networkConnection,
                 queue: self.queue
             )
-            self.connections[result] = connection
+            self.connections[result, default: []].append(connection)
             connection.start()
             return connection
         }
@@ -60,8 +61,18 @@ public final class BonjourConnectionService: ObservableObject {
             self.connections = [:]
             return connections
         }
-        for (_, connection) in connections {
+        for connection in connections.values.flatMap({ $0 }) {
             connection.forceCancel()
+        }
+    }
+}
+
+private extension Connection.State {
+    var isTerminated: Bool {
+        return switch self {
+        case .setup, .waiting, .preparing, .ready: false
+        case .failed, .cancelled: true
+        @unknown default: true
         }
     }
 }

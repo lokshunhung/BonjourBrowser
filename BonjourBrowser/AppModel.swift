@@ -45,7 +45,7 @@ extension AppModel.NavigationPathStorage {
     private static let key = "gnlok.BonjourBrowser.AppModel.path"
 
     public static func live(_ userDefaults: UserDefaults) -> Self {
-        .init(
+        return .init(
             read: { () in
                 if let data = userDefaults.data(forKey: Self.key),
                    let codable = try? JSONDecoder().decode(NavigationPath.CodableRepresentation.self, from: data) {

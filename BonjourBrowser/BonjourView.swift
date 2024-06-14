@@ -194,7 +194,7 @@ public struct ConnectionView: View {
 
             service.$connections
                 .receive(on: mainQueue)
-                .map(\.values).map(Array.init)
+                .map { $0.values.flatMap({ $0 }) }
                 .assign(to: &self.$connections)
         }
 
@@ -293,21 +293,26 @@ public struct ListenerView: View {
 public struct ConnectionRowView: View {
     @ObservedObject var viewModel: Model
 
-    // TODO: NavigationLink(value:label:)
     public var body: some View {
-        HStack {
-            Text(viewModel.state)
-                .foregroundStyle(.gray)
-                .frame(width: 80)
-            Text(viewModel.description)
+        NavigationLink(value: ConnectionDetailPageRoute(connection: viewModel.connection)) {
+            HStack {
+                Text(viewModel.state)
+                    .foregroundStyle(.gray)
+                    .frame(width: 80)
+                Text(viewModel.description)
+            }
         }
     }
 
     @MainActor public final class Model: ObservableObject {
+        public let connection: Connection
+
         @Published public private(set) var state: String = ""
         @Published public private(set) var description: String = ""
 
         public init(_ connection: Connection, mainQueue: DispatchQueue) {
+            self.connection = connection
+
             connection.$state
                 .receive(on: mainQueue)
                 .map(\.bonjour.description)

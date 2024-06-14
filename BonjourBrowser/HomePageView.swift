@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+public struct HomePageRoute: Route {}
+
 public struct HomePageView: View {
     @ObservedObject var viewModel: Model
 
