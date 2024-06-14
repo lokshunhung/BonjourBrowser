@@ -45,6 +45,7 @@ extension AppModel.NavigationPathStorage {
     private static let key = "gnlok.BonjourBrowser.AppModel.path"
 
     public static func live(_ userDefaults: UserDefaults) -> Self {
+        // TODO: Route.Protocol is not Codable
         return .init(
             read: { () in
                 if let data = userDefaults.data(forKey: Self.key),
