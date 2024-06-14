@@ -33,6 +33,7 @@
 		83EB79052C1C065500AE125E /* HomePageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomePageView.swift; sourceTree = "<group>"; };
 		83EB79072C1C0BDB00AE125E /* ConnectionDetailPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionDetailPageView.swift; sourceTree = "<group>"; };
 		83EB790B2C1C2BF200AE125E /* Route.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Route.swift; sourceTree = "<group>"; };
+		83EB790F2C1C3B8800AE125E /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		83EBDE762C188ABE0017FF06 /* BonjourBrowser.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BonjourBrowser.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		83EBDE792C188ABE0017FF06 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
 		83EBDE7D2C188ABF0017FF06 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -60,6 +61,7 @@
 		83EBDE6D2C188ABE0017FF06 = {
 			isa = PBXGroup;
 			children = (
+				83EB790F2C1C3B8800AE125E /* README.md */,
 				83EBDE782C188ABE0017FF06 /* BonjourBrowser */,
 				83EBDE772C188ABE0017FF06 /* Products */,
 			);
