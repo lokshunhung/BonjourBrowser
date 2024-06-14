@@ -162,7 +162,12 @@ public struct ConnectionView: View {
     public var body: some View {
         Section {
             ForEach(viewModel.connections) { connection in
-                ConnectionRowView(viewModel: ConnectionRowView.Model(connection, mainQueue: viewModel.mainQueue))
+                ConnectionRowView(
+                    viewModel: ConnectionRowView.Model(connection, mainQueue: viewModel.mainQueue)
+                )
+                .swipeActions {
+                    Button("Remove", systemImage: "trash", role: .destructive, action: send(.removeTapped(connection: connection)))
+                }
             }
         } header: {
             HStack {
@@ -202,12 +207,15 @@ public struct ConnectionView: View {
             switch action {
             case .stopAllTapped:
                 self.service.stopAll()
+            case .removeTapped(let connection):
+                self.service.remove(connection: connection)
             }
         }
     }
 
     public enum Action {
         case stopAllTapped
+        case removeTapped(connection: Connection)
     }
 }
 
@@ -227,7 +235,12 @@ public struct ListenerView: View {
         }
         Section {
             ForEach(viewModel.connections) { connection in
-                ConnectionRowView(viewModel: ConnectionRowView.Model(connection, mainQueue: viewModel.mainQueue))
+                ConnectionRowView(
+                    viewModel: ConnectionRowView.Model(connection, mainQueue: viewModel.mainQueue)
+                )
+                .swipeActions {
+                    Button("Remove", systemImage: "trash", role: .destructive, action: send(.removeTapped(connection: connection)))
+                }
             }
         } header: {
             Text("Listener Connections (\(viewModel.connections.count))")
@@ -280,6 +293,8 @@ public struct ListenerView: View {
                 try? self.service.start()
             case .stopTapped:
                 self.service.stop()
+            case .removeTapped(let connection):
+                self.service.remove(connection: connection)
             }
         }
     }
@@ -287,11 +302,15 @@ public struct ListenerView: View {
     public enum Action {
         case startTapped
         case stopTapped
+        case removeTapped(connection: Connection)
     }
 }
 
+// MARK: - ConnectionRowView
+
 public struct ConnectionRowView: View {
     @ObservedObject var viewModel: Model
+    @Environment(\.dismiss) var dismiss
 
     public var body: some View {
         NavigationLink(value: ConnectionDetailPageRoute(connection: viewModel.connection)) {

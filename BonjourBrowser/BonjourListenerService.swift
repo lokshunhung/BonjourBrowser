@@ -57,6 +57,13 @@ public final class BonjourListenerService: ObservableObject {
         }
     }
 
+    public func remove(connection: Connection) {
+        self.queue.sync {
+            self.connections.removeAll(where: { $0 === connection })
+        }
+        connection.forceCancel()
+    }
+
     // MARK: NWListener Handlers
 
     private func bind(asDelegateTo listener: NWListener) {

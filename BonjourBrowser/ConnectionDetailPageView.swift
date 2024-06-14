@@ -41,7 +41,7 @@ public struct ConnectionDetailPageView: View {
                 Text("Info")
             }
             Section {
-                Button("Stop", action: send(.stop))
+                Button("Stop", action: send(.stopTapped))
             }
         }
         .navigationTitle("Connection Details")
@@ -78,13 +78,13 @@ public struct ConnectionDetailPageView: View {
 
         public func handle(action: Action) {
             switch action {
-            case .stop:
+            case .stopTapped:
                 self.connection.forceCancel()
             }
         }
     }
 
     public enum Action {
-        case stop
+        case stopTapped
     }
 }

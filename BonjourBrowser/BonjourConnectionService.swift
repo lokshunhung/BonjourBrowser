@@ -25,6 +25,7 @@ public final class BonjourConnectionService: ObservableObject {
     )
 
     @Published public private(set) var connections: [NWBrowser.Result: [Connection]] = [:]
+    private var results: [Connection: NWBrowser.Result] = [:]
 
     public init() {}
 
@@ -49,6 +50,7 @@ public final class BonjourConnectionService: ObservableObject {
                 queue: self.queue
             )
             self.connections[result, default: []].append(connection)
+            self.results[connection] = result
             connection.start()
             return connection
         }
@@ -57,6 +59,7 @@ public final class BonjourConnectionService: ObservableObject {
     public func stopAll() {
         Logger.connection.info("stopAll")
         let connections = self.queue.sync {
+            self.results = [:]
             let connections = self.connections
             self.connections = [:]
             return connections
@@ -64,6 +67,20 @@ public final class BonjourConnectionService: ObservableObject {
         for connection in connections.values.flatMap({ $0 }) {
             connection.forceCancel()
         }
+    }
+
+    public func remove(connection: Connection) {
+        self.queue.sync {
+            guard let result = self.results[connection],
+                  var connections = self.connections[result]
+            else {
+                return
+            }
+            connections.removeAll(where: { $0 === connection })
+            self.connections[result] = connections
+            self.results[connection] = nil
+        }
+        connection.forceCancel()
     }
 }
 

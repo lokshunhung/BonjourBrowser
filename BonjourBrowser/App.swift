@@ -64,7 +64,19 @@ private final class AppComponent {
     }
 
     @MainActor func home() -> some View {
-        HomePageView(viewModel: viewModel(HomePageRoute()))
+        HomePageView(viewModel: self.viewModel(HomePageRoute()))
+    }
+
+    @MainActor private func navigationDestinationRegistration(content: some View) -> some View {
+        Group {
+            content
+        }
+        .navigationDestination(for: HomePageRoute.self) { route in
+            HomePageView(viewModel: self.viewModel(route))
+        }
+        .navigationDestination(for: ConnectionDetailPageRoute.self) { route in
+            ConnectionDetailPageView(viewModel: self.viewModel(route))
+        }
     }
 
     var navigationDestinationModifier: some ViewModifier {
@@ -73,17 +85,8 @@ private final class AppComponent {
 
     private struct NavigationDestinationModifier: ViewModifier {
         let component: AppComponent
-
         func body(content: Content) -> some View {
-            Group {
-                content
-            }
-            .navigationDestination(for: HomePageRoute.self) { route in
-                HomePageView(viewModel: component.viewModel(route))
-            }
-            .navigationDestination(for: ConnectionDetailPageRoute.self) { route in
-                ConnectionDetailPageView(viewModel: component.viewModel(route))
-            }
+            component.navigationDestinationRegistration(content: content)
         }
     }
 }
