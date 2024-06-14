@@ -10,6 +10,8 @@ import Foundation
 import Network
 import OSLog
 
+/// Reactive wrapper around `NWConnection`.
+/// Instances of this class are single-use, and should be disposed when connection terminates.
 public final class Connection: ObservableObject, @unchecked Sendable {
     public typealias State = NWConnection.State
     public typealias Path = NWPath
@@ -29,68 +31,52 @@ public final class Connection: ObservableObject, @unchecked Sendable {
         self.connection = connection
         self.queue = queue
 
-        connection.stateUpdateHandler = { [weak self] in self?.onStateChanged($0) }
+        connection.stateUpdateHandler = { [weak self] in self?.onStateUpdated($0) }
         connection.pathUpdateHandler = { [weak self] in self?.onPathUpdated($0) }
         connection.viabilityUpdateHandler = { [weak self] in self?.onViabilityUpdated($0) }
         connection.betterPathUpdateHandler = { [weak self] in self?.onBetterPathUpdated($0) }
     }
 
     public func start() {
-        connection.start(queue: queue)
+        self.connection.start(queue: self.queue)
     }
 
     public func cancel() {
-        connection.cancel()
+        self.connection.cancel()
     }
 
     public func cancelCurrentEndpoint() {
-        connection.cancelCurrentEndpoint()
+        self.connection.cancelCurrentEndpoint()
     }
 
     public func forceCancel() {
-        connection.forceCancel()
+        self.connection.forceCancel()
     }
 
     // MARK: NWConnection Handlers
 
-    private func onStateChanged(_ state: NWConnection.State) {
-        dispatchPrecondition(condition: .onQueue(queue))
+    private func onStateUpdated(_ state: NWConnection.State) {
+        dispatchPrecondition(condition: .onQueue(self.queue))
         Logger.peer.info("status \(String(describing: state))")
         self.state = state
     }
 
     private func onPathUpdated(_ newPath: NWPath) {
-        dispatchPrecondition(condition: .onQueue(queue))
+        dispatchPrecondition(condition: .onQueue(self.queue))
         Logger.peer.info("path-> \(String(describing: newPath))")
         self.path = newPath
     }
 
     private func onViabilityUpdated(_ newIsViable: Bool) {
-        dispatchPrecondition(condition: .onQueue(queue))
+        dispatchPrecondition(condition: .onQueue(self.queue))
         Logger.peer.info("viable \(newIsViable)")
         self.isViable = newIsViable
     }
 
     private func onBetterPathUpdated(_ newHasBetterPath: Bool) {
-        dispatchPrecondition(condition: .onQueue(queue))
+        dispatchPrecondition(condition: .onQueue(self.queue))
         Logger.peer.info("better path \(newHasBetterPath)")
         self.hasBetterPath = newHasBetterPath
-    }
-}
-
-extension Connection {
-    public var terminated: () {
-        get async {
-            for await state in self.$state.values {
-                switch state {
-                case .setup, .waiting, .preparing, .ready:
-                    continue
-                case .failed, .cancelled: fallthrough
-                @unknown default:
-                    return
-                }
-            }
-        }
     }
 }
 

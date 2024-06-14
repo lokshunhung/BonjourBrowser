@@ -15,7 +15,7 @@ public final class AppModel: ObservableObject {
 
     @Published public var path: NavigationPath
 
-    public init(pathStorage: NavigationPathStorage = .live(.standard)) {
+    public init(pathStorage: NavigationPathStorage) {
         self.pathStorage = pathStorage
         self.path = pathStorage.read()
 
@@ -44,7 +44,7 @@ public final class AppModel: ObservableObject {
 extension AppModel.NavigationPathStorage {
     private static let key = "gnlok.BonjourBrowser.AppModel.path"
 
-    public static func live(_ userDefaults: UserDefaults = .standard) -> Self {
+    public static func live(_ userDefaults: UserDefaults) -> Self {
         .init(
             read: { () in
                 if let data = userDefaults.data(forKey: Self.key),

@@ -10,72 +10,59 @@ import Foundation
 import Network
 import OSLog
 
-// TODO: Allow picking multiple connections from browser
-/// Given a `NWBrowser.Result`, initiates a connection to the discovered service.
-/// The `NWBrowser.Result` could be obtained with `BonjourBrowserService`.
+/// Manages all outgoing `NWConnection` initiated through `start(with:)`.
+/// All connections managed share the same serial `DispatchQueue` provided internally in this class.
+///
+/// To start a connection to a discovered service, provide a `NWBrowser.Result`,
+/// which could be obtained with `BonjourBrowserService`.
 public final class BonjourConnectionService: ObservableObject {
     public typealias State = Connection.State
     public typealias Path = Connection.Path
 
-    private var connection: Connection?
     private let queue: DispatchQueue = .init(
         label: "gnlok.BonjourBrowser.BonjourConnectionService",
         target: .global(qos: .userInitiated)
     )
 
-    @Published public private(set) var state: State = .setup
-    @Published public private(set) var path: Path? = nil
-    @Published public private(set) var isViable: Bool = false
-    @Published public private(set) var hasBetterPath: Bool = false
+    @Published public private(set) var connections: [NWBrowser.Result: Connection] = [:]
 
     public init() {}
 
-    deinit { stop() }
+    deinit { self.stopAll() }
 
-    public func start(using result: NWBrowser.Result) {
-        Logger.connection.info("start")
-        queue.sync {
-            guard self.connection == nil else { return }
+    @discardableResult
+    public func start(with result: NWBrowser.Result) -> Connection {
+        Logger.connection.info("start(with:) \(String(describing: result))")
+        return self.queue.sync {
+            if let connection = self.connections[result] {
+                Logger.connection.warning("start(with:) - called twice using the same result: \(String(describing: result))")
+                return connection
+            }
+
             let networkConnection = NWConnection(
                 to: result.endpoint,
                 using: .bonjour.tcp()
             )
             let connection = Connection(
                 connection: networkConnection,
-                queue: queue
+                queue: self.queue
             )
-            self.connection = connection
-            self.bind(connection)
+            self.connections[result] = connection
             connection.start()
+            return connection
         }
     }
 
-    public func stop() {
-        Logger.connection.info("stop")
-        queue.sync {
-            guard let connection = self.connection else { return }
+    public func stopAll() {
+        Logger.connection.info("stopAll")
+        let connections = self.queue.sync {
+            let connections = self.connections
+            self.connections = [:]
+            return connections
+        }
+        for (_, connection) in connections {
             connection.forceCancel()
-            self.connection = nil
-            self.state = .cancelled
-            self.path = nil
-            self.isViable = false
-            self.hasBetterPath = false
         }
-    }
-
-    private func bind(_ connection: Connection) {
-        connection.$state
-            .receive(on: queue)
-            .assign(to: &self.$state)
-        connection.$path
-            .receive(on: queue)
-            .assign(to: &self.$path)
-        connection.$isViable
-            .receive(on: queue)
-            .assign(to: &self.$isViable)
-        connection.$hasBetterPath
-            .receive(on: queue)
-            .assign(to: &self.$hasBetterPath)
     }
 }
 

@@ -25,24 +25,24 @@ public final class BonjourBrowserService: ObservableObject {
     @Published public private(set) var state: State = .setup
     @Published public private(set) var browseResults: Set<Result> = []
 
+    public var canStop: Bool { self.browser != nil }
+
     public init() {}
 
-    deinit { stop() }
+    deinit { self.stop() }
 
     public func start() {
         Logger.browser.info("start")
-        let browser = queue.sync {
-            if let browser = self.browser { return browser }
+        self.queue.sync {
+            guard self.browser == nil else { return }
             let browser = NWBrowser(
                 for: .bonjour(type: Info.bonjour.serviceType, domain: "local."),
                 using: .bonjour.tcp()
             )
             self.browser = browser
-            return browser
+            self.bind(asDelegateTo: browser)
+            browser.start(queue: self.queue)
         }
-        browser.stateUpdateHandler = { [weak self] in self?.onStateUpdate($0) }
-        browser.browseResultsChangedHandler = { [weak self] in self?.onBrowserResultsChanged($0, $1) }
-        browser.start(queue: queue)
     }
 
     public func stop() {
@@ -57,14 +57,19 @@ public final class BonjourBrowserService: ObservableObject {
 
     // MARK: NWBrowser Handlers
 
+    private func bind(asDelegateTo browser: NWBrowser) {
+        browser.stateUpdateHandler = { [weak self] in self?.onStateUpdate($0) }
+        browser.browseResultsChangedHandler = { [weak self] in self?.onBrowserResultsChanged($0, $1) }
+    }
+
     private func onStateUpdate(_ newState: NWBrowser.State) {
-        dispatchPrecondition(condition: .onQueue(queue))
+        dispatchPrecondition(condition: .onQueue(self.queue))
         Logger.browser.info("status \(String(describing: newState))")
         self.state = newState
     }
 
     private func onBrowserResultsChanged(_ newResults: Set<NWBrowser.Result>, _ changes: Set<NWBrowser.Result.Change>) {
-        dispatchPrecondition(condition: .onQueue(queue))
+        dispatchPrecondition(condition: .onQueue(self.queue))
         for change in changes {
             switch change {
             case .added(let result):

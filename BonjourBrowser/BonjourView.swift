@@ -49,18 +49,18 @@ public struct BrowserView: View {
                     }
                 }
             }
-            .alert($viewModel.alert, action: send(Action.handleAlertAction))
+            .alert($viewModel.alert, action: send(Action.alert(action:)))
         } header: {
             Text("Browser Results (\(viewModel.results.count))")
         }
     }
 
     private func send(_ action: @autoclosure @escaping () -> Action) -> () -> () {
-        { [weak viewModel] in viewModel?.handleAction(action()) }
+        { [weak viewModel] in viewModel?.handle(action: action()) }
     }
 
     private func send<T>(_ action: @escaping (T) -> Action) -> (T) -> () {
-        { [weak viewModel] in viewModel?.handleAction(action($0)) }
+        { [weak viewModel] in viewModel?.handle(action: action($0)) }
     }
 
     private func actionButtons() -> some View {
@@ -102,20 +102,20 @@ public struct BrowserView: View {
                 .assign(to: &self.$results)
         }
 
-        public func handleAction(_ action: Action) {
+        public func handle(action: Action) {
             switch action {
             case .startTapped:
                 self.service.start()
             case .stopTapped:
                 self.service.stop()
             case .resultTapped(let result):
-                self.alert = .confirmResult(result)
-            case .handleAlertAction(let action):
-                self.handleAlertAction(action)
+                self.alert = .confirm(result: result)
+            case .alert(let action):
+                self.handleAlert(action: action)
             }
         }
 
-        private func handleAlertAction(_ action: AlertAction?) {
+        private func handleAlert(action: AlertAction?) {
             switch action {
             case .confirm(let result):
                 self.onResultSelected(result)
@@ -129,7 +129,7 @@ public struct BrowserView: View {
         case startTapped
         case stopTapped
         case resultTapped(result: BonjourBrowserService.Result)
-        case handleAlertAction(AlertAction?)
+        case alert(action: AlertAction?)
     }
 
     public enum AlertAction {
@@ -138,7 +138,7 @@ public struct BrowserView: View {
 }
 
 extension AlertState<BrowserView.AlertAction> {
-    static func confirmResult(_ result: BonjourBrowserService.Result) -> Self {
+    static func confirm(result: BonjourBrowserService.Result) -> Self {
         AlertState {
             TextState("Connect to Peer")
         } actions: {
@@ -159,42 +159,31 @@ extension AlertState<BrowserView.AlertAction> {
 public struct ConnectionView: View {
     @ObservedObject var viewModel: Model
 
-    // TODO: List all connections
     public var body: some View {
         Section {
-            LabeledContent("State") {
-                Text(viewModel.state?.bonjour.description ?? "nil")
+            ForEach(viewModel.connections) { connection in
+                ConnectionRowView(viewModel: ConnectionRowView.Model(connection, mainQueue: viewModel.mainQueue))
             }
-            LabeledContent("Path") {
-                Text(viewModel.path?.debugDescription ?? "nil")
-            }
-            actionButtons()
         } header: {
-            Text("Connection")
+            HStack {
+                Text("Outgoing Connections (\(viewModel.connections.count))")
+                Spacer()
+                Button("Stop All", action: send(.stopAllTapped))
+                    .buttonStyle(.borderless)
+                    .font(.footnote)
+            }
         }
     }
 
     private func send(_ action: @autoclosure @escaping () -> Action) -> () -> () {
-        { [weak viewModel] in viewModel?.handleAction(action()) }
-    }
-
-    private func actionButtons() -> some View {
-        HStack {
-            Button(role: .destructive, action: send(.stopTapped)) {
-                Text("Stop")
-            }
-            .buttonStyle(.bordered)
-            .disabled(viewModel.state == .setup || viewModel.state == .cancelled)
-        }
-        .frame(maxWidth: .infinity)
+        { [weak viewModel] in viewModel?.handle(action: action()) }
     }
 
     @MainActor public final class Model: ObservableObject {
         private let service: BonjourConnectionService
-        private let mainQueue: DispatchQueue
+        let mainQueue: DispatchQueue
 
-        @Published public private(set) var state: BonjourConnectionService.State?
-        @Published public private(set) var path: BonjourConnectionService.Path?
+        @Published public private(set) var connections: [Connection] = []
 
         public init(
             service: BonjourConnectionService,
@@ -203,27 +192,22 @@ public struct ConnectionView: View {
             self.service = service
             self.mainQueue = mainQueue
 
-            service.$state.map(Optional.some)
+            service.$connections
                 .receive(on: mainQueue)
-                .assign(to: &self.$state)
-            service.$path
-                .receive(on: mainQueue)
-                .assign(to: &self.$path)
+                .map(\.values).map(Array.init)
+                .assign(to: &self.$connections)
         }
 
-        public func handleAction(_ action: Action) {
+        public func handle(action: Action) {
             switch action {
-            case .startTapped(let browserResult):
-                self.service.start(using: browserResult)
-            case .stopTapped:
-                self.service.stop()
+            case .stopAllTapped:
+                self.service.stopAll()
             }
         }
     }
 
     public enum Action {
-        case startTapped(browserResult: BonjourBrowserService.Result)
-        case stopTapped
+        case stopAllTapped
     }
 }
 
@@ -243,7 +227,7 @@ public struct ListenerView: View {
         }
         Section {
             ForEach(viewModel.connections) { connection in
-                ListenerConnectionView(viewModel: ListenerConnectionView.Model(connection))
+                ConnectionRowView(viewModel: ConnectionRowView.Model(connection, mainQueue: viewModel.mainQueue))
             }
         } header: {
             Text("Listener Connections (\(viewModel.connections.count))")
@@ -251,7 +235,7 @@ public struct ListenerView: View {
     }
 
     private func send(_ action: @autoclosure @escaping () -> Action) -> () -> () {
-        { [weak viewModel] in viewModel?.handleAction(action()) }
+        { [weak viewModel] in viewModel?.handle(action: action()) }
     }
 
     private func actionButtons() -> some View {
@@ -270,7 +254,7 @@ public struct ListenerView: View {
 
     @MainActor public final class Model: ObservableObject {
         private let service: BonjourListenerService
-        private let mainQueue: DispatchQueue
+        let mainQueue: DispatchQueue
 
         @Published public private(set) var connections: [Connection] = []
         @Published public private(set) var state: BonjourListenerService.State?
@@ -290,7 +274,7 @@ public struct ListenerView: View {
                 .assign(to: &self.$state)
         }
 
-        public func handleAction(_ action: Action) {
+        public func handle(action: Action) {
             switch action {
             case .startTapped:
                 try? self.service.start()
@@ -306,7 +290,7 @@ public struct ListenerView: View {
     }
 }
 
-public struct ListenerConnectionView: View {
+public struct ConnectionRowView: View {
     @ObservedObject var viewModel: Model
 
     // TODO: NavigationLink(value:label:)
@@ -323,7 +307,7 @@ public struct ListenerConnectionView: View {
         @Published public private(set) var state: String = ""
         @Published public private(set) var description: String = ""
 
-        public init(_ connection: Connection, mainQueue: DispatchQueue = .main) {
+        public init(_ connection: Connection, mainQueue: DispatchQueue) {
             connection.$state
                 .receive(on: mainQueue)
                 .map(\.bonjour.description)
